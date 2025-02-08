@@ -17,9 +17,9 @@ import file_read
 import array_proc
 import csv_writer
 
-from APHE_testing import APHE_Washout_ZhongShan
+from APHE_testing import APHE_Washout
 from Capsule import liver_vessel_removal
-from Capsule import Capsule_ZhongShan2, capsule_parameters
+from Capsule import Capsule2, capsule_parameters
 from calculate_washout_score import Washout_Score
 from judge_progressive_enhancement import if_progressive_enhancement
 
@@ -33,7 +33,7 @@ def main():
             results = {key: future.result() for key, future in futures.items()}
         return results
 
-    def read_img_mask_ZhongShan(path, file, data_site, feature, testing_group):
+    def read_img_mask(path, file, data_site, feature, testing_group):
         name_dic = file_read.img_path_read_ZhongShan(file, path, data_site, feature=feature, testing_group=testing_group)
 
         results = parallel_img_array_read(name_dic)
@@ -56,7 +56,7 @@ def main():
         return pre_array, A_array, V_array, D_array, t_pre_array,t_A_array, t_V_array, t_D_array, l_pre_array, l_A_array, l_V_array, l_D_array, spacing
 
 
-    def get_tumor_layers_ZhongShan(img_array,t_array, l_array):
+    def get_tumor_layers(img_array,t_array, l_array):
         t_array_pre = array_proc.remove_t_1(t_array)  # remove label which is > 1
 
         img_layers, t_layers, l_layers, tz_layers = array_proc.get_layers_single_phase(img_array,t_array_pre, l_array)  # remove layers which doesn't have label = 1
@@ -64,7 +64,7 @@ def main():
         return img_layers, t_layers, l_layers, tz_layers
 
 
-    def single_layer_ZhongShan(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers, t_D_layers,  l_pre_layers, l_A_layers, l_V_layers, l_D_layers, layer_index):
+    def single_layer(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers, t_D_layers,  l_pre_layers, l_A_layers, l_V_layers, l_D_layers, layer_index):
         pre_array_2d = pre_layers[layer_index[0], :, :]
         A_array_2d = A_layers[layer_index[1], :, :]
         V_array_2d = V_layers[layer_index[2], :, :]
@@ -135,10 +135,10 @@ def main():
 
 
 
-    def get_DCE_data_ZhongShan(path, file, data_site, feature, testing_group):
+    def get_DCE_data(path, file, data_site, feature, testing_group):
         # Read image and mask
         pre_array, A_array, V_array, D_array, t_pre_array, t_A_array, t_V_array, t_D_array, \
-        l_pre_array, l_A_array, l_V_array, l_D_array, spacing = read_img_mask_ZhongShan(
+        l_pre_array, l_A_array, l_V_array, l_D_array, spacing = read_img_mask(
             path, file, data_site, feature, testing_group)
 
 
@@ -148,7 +148,7 @@ def main():
                   (D_array, t_D_array, l_D_array)]
 
         with ThreadPoolExecutor() as executor:
-            results = list(executor.map(lambda arr: get_tumor_layers_ZhongShan(arr[0], arr[1], arr[2]), arrays))
+            results = list(executor.map(lambda arr: get_tumor_layers(arr[0], arr[1], arr[2]), arrays))
 
         # 将结果解包
         (pre_layers, t_pre_layers, l_pre_layers, tz_layers_pre), (A_layers, t_A_layers, l_A_layers, tz_layers_A), (V_layers, t_V_layers, l_V_layers, tz_layers_V), (D_layers, t_D_layers, l_D_layers, tz_layers_D) = results
@@ -156,11 +156,11 @@ def main():
         return pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers, t_D_layers, l_pre_layers, l_A_layers, l_V_layers, l_D_layers, tz_layers_pre, tz_layers_A, tz_layers_V, tz_layers_D, spacing
 
 
-    def pre_processing_single_layer_ZhongShan(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers,
+    def pre_processing_single_layer(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers,
                                    t_D_layers, l_pre_layers, l_A_layers, l_V_layers, l_D_layers, layer_index, file):
         pre_array_2d, A_array_2d, V_array_2d, D_array_2d, t_pre_array_2d, t_A_array_2d, t_V_array_2d, t_D_array_2d, \
             l_pre_array_2d, l_A_array_2d, l_V_array_2d, l_D_array_2d = \
-            single_layer_ZhongShan(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers,
+            single_layer(pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers,
                                    t_D_layers,  l_pre_layers, l_A_layers, l_V_layers, l_D_layers, layer_index)
 
 
@@ -188,15 +188,15 @@ def main():
 
         return pre_array_2d, A_array_2d, V_array_2d, D_array_2d, t_pre_array_2d_pre, t_A_array_2d_pre, t_V_array_2d_pre, t_D_array_2d_pre, l_pre_array_2d, l_A_array_2d, l_V_array_2d, l_D_array_2d, t_array_2d_max
 
-    def single_layer_single_phase_ZhongShan(pre_layers, t_pre_layers, l_pre_layers,layer_index):
+    def single_layer_single_phase(pre_layers, t_pre_layers, l_pre_layers,layer_index):
         pre_array_2d = pre_layers[layer_index, :, :]
         t_pre_array_2d = t_pre_layers[layer_index, :, :]
         l_pre_array_2d = l_pre_layers[layer_index, :, :]
 
         return pre_array_2d,t_pre_array_2d, l_pre_array_2d
 
-    def pre_processing_single_layer_single_phase_ZhongShan(pre_layers, t_pre_layers,l_pre_layers, layer_index, file):
-        pre_array_2d, t_pre_array_2d, l_pre_array_2d = single_layer_single_phase_ZhongShan(pre_layers, t_pre_layers, l_pre_layers, layer_index)
+    def pre_processing_single_layer_single_phase(pre_layers, t_pre_layers,l_pre_layers, layer_index, file):
+        pre_array_2d, t_pre_array_2d, l_pre_array_2d = single_layer_single_phase(pre_layers, t_pre_layers, l_pre_layers, layer_index)
 
 
         t_pre_array_2d_pre = tumor_layer_pre_processing(t_pre_array_2d, args.smallest_region_pixels_ZhongShan)
@@ -487,7 +487,7 @@ def main():
 
                 pre_layers, A_layers, V_layers, D_layers, t_pre_layers, t_A_layers, t_V_layers, t_D_layers, \
                 l_pre_layers, l_A_layers, l_V_layers, l_D_layers, \
-                tz_layers_pre, tz_layers_A, tz_layers_V, tz_layers_D, spacing = get_DCE_data_ZhongShan(args.path, file, data_site,feature='Capsule', testing_group=testing_group)
+                tz_layers_pre, tz_layers_A, tz_layers_V, tz_layers_D, spacing = get_DCE_data(args.path, file, data_site,feature='Capsule', testing_group=testing_group)
 
                 print('tz_layers_pre_A_V: ', tz_layers_pre, tz_layers_A, tz_layers_V)
                 # Steps:
@@ -566,7 +566,7 @@ def main():
 
                                 pre_array_2d, A_array_2d, V_array_2d, D_array_2d, t_pre_array_2d_pre, t_A_array_2d_pre, t_V_array_2d_pre, t_D_array_2d_pre, \
                                 l_pre_array_2d, l_A_array_2d, l_V_array_2d, l_D_array_2d, t_array_2d_max = \
-                                    pre_processing_single_layer_ZhongShan(pre_layers, A_layers, V_layers, D_layers,
+                                    pre_processing_single_layer(pre_layers, A_layers, V_layers, D_layers,
                                                                           t_pre_layers, t_A_layers, t_V_layers, t_D_layers,
                                                                           l_pre_layers, l_A_layers, l_V_layers, l_D_layers,
                                                                           layer_index, file)
@@ -581,13 +581,13 @@ def main():
 
                                 # layer_index, the position of layer_pre in tz_layers_pre, and position of layer_A in tz_layers_A;
                                 # 46: 0; 46: 0; [0,0]
-                                pre_array_2d, t_pre_array_2d_pre, l_pre_array_2d = pre_processing_single_layer_single_phase_ZhongShan(\
+                                pre_array_2d, t_pre_array_2d_pre, l_pre_array_2d = pre_processing_single_layer_single_phase(\
                                     pre_layers, t_pre_layers,l_pre_layers, layer_index[0], file)
-                                A_array_2d, t_A_array_2d_pre, l_A_array_2d = pre_processing_single_layer_single_phase_ZhongShan(
+                                A_array_2d, t_A_array_2d_pre, l_A_array_2d = pre_processing_single_layer_single_phase(
                                     A_layers, t_A_layers, l_A_layers, layer_index[1], file)
 
 
-                                V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase_ZhongShan(
+                                V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase(
                                     V_layers, t_V_layers, l_V_layers, layer_index[2], file)
 
 
@@ -658,13 +658,13 @@ def main():
                                         # 1. Calculate APHE score
 
                                         tumor_OTSU_bright_Pre, around_pix_img_mean_value_Pre, t_point_img_mean_value_Pre, tumor_OTSU_dark_Pre, enhancement_area_ratio_Pre, whole_enhancement_Pre = \
-                                            APHE_Washout_ZhongShan(pre_2d_win, pre_t_label_win, pre_l_array_win, j,
+                                            APHE_Washout(pre_2d_win, pre_t_label_win, pre_l_array_win, j,
                                                                    args.around_dilate_size, radius, 'pre',
                                                                    data_site, rescaled=args.rescaled,
                                                                    feature='APHE', A_whole_enhancement=False)
 
                                         tumor_OTSU_bright_A, around_pix_img_mean_value_A, t_point_img_mean_value_A, tumor_OTSU_dark_A, enhancement_area_ratio_A, whole_enhancement_A = \
-                                            APHE_Washout_ZhongShan(A_2d_win, A_t_label_win, A_l_array_win, j,
+                                            APHE_Washout(A_2d_win, A_t_label_win, A_l_array_win, j,
                                                                    args.around_dilate_size, radius, 'A', data_site,
                                                                    rescaled=args.rescaled, feature='APHE',
                                                                    A_whole_enhancement=False)
@@ -712,13 +712,13 @@ def main():
                                         print('For Washout: ')
 
                                         tumor_OTSU_bright_Pre, around_pix_img_mean_value_Pre, t_point_img_mean_value_Pre, tumor_OTSU_dark_Pre, enhancement_area_ratio_Pre, whole_enhancement_Pre = \
-                                            APHE_Washout_ZhongShan(pre_2d_win, pre_t_label_win, pre_l_array_win, j,
+                                            APHE_Washout(pre_2d_win, pre_t_label_win, pre_l_array_win, j,
                                                                    args.around_dilate_size, radius, 'pre',
                                                                    data_site, rescaled=args.rescaled,
                                                                    feature='Washout', A_whole_enhancement=False)
 
                                         tumor_OTSU_bright_A, around_pix_img_mean_value_A, t_point_img_mean_value_A, tumor_OTSU_dark_A, enhancement_area_ratio_A, whole_enhancement_A = \
-                                            APHE_Washout_ZhongShan(A_2d_win, A_t_label_win, A_l_array_win, j,
+                                            APHE_Washout(A_2d_win, A_t_label_win, A_l_array_win, j,
                                                                    args.around_dilate_size, radius, 'A', data_site,
                                                                    rescaled=args.rescaled, feature='Washout',
                                                                    A_whole_enhancement=False)
@@ -837,7 +837,7 @@ def main():
                             layer_index = i
 
 
-                            V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase_ZhongShan(
+                            V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase(
                                 V_layers, t_V_layers, l_V_layers, layer_index, file)
                             t_array_2d_max = 1
 
@@ -878,7 +878,7 @@ def main():
                                         # 2. Calculate Washout Score
 
                                         if auto_segmentation:
-                                            tumor_OTSU_bright_V, around_pix_img_mean_value_V, t_point_img_mean_value_V, tumor_OTSU_dark_V, enhancement_area_ratio_V, whole_enhancement_V = APHE_Washout_ZhongShan(V_2d_win,
+                                            tumor_OTSU_bright_V, around_pix_img_mean_value_V, t_point_img_mean_value_V, tumor_OTSU_dark_V, enhancement_area_ratio_V, whole_enhancement_V = APHE_Washout(V_2d_win,
                                                                                                               V_t_label_win,
                                                                                                               V_l_array_win,
                                                                                                               j,
@@ -890,7 +890,7 @@ def main():
                                                                                                               Whole_enhancement[
                                                                                                                   i])
                                         else:
-                                            tumor_OTSU_bright_V, around_pix_img_mean_value_V, t_point_img_mean_value_V, tumor_OTSU_dark_V, enhancement_area_ratio_V, whole_enhancement_V = APHE_Washout_ZhongShan(V_2d_win,
+                                            tumor_OTSU_bright_V, around_pix_img_mean_value_V, t_point_img_mean_value_V, tumor_OTSU_dark_V, enhancement_area_ratio_V, whole_enhancement_V = APHE_Washout(V_2d_win,
                                                                                                               V_t_label_win,
                                                                                                               V_l_array_win,
                                                                                                               j,
@@ -944,7 +944,7 @@ def main():
                             layer_index = i
 
 
-                            V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase_ZhongShan(
+                            V_array_2d, t_V_array_2d_pre, l_V_array_2d = pre_processing_single_layer_single_phase(
                                 V_layers, t_V_layers, l_V_layers, layer_index, file)
                             t_array_2d_max = 1
 
@@ -990,7 +990,7 @@ def main():
 
 
 
-                                        capsule_score_V = Capsule_ZhongShan2(V_2d_win, V_t_label_win, V_l_array_win,
+                                        capsule_score_V = Capsule2(V_2d_win, V_t_label_win, V_l_array_win,
                                                                              liver_without_vessel_V_win, \
                                                                              liver_without_vessel_V_win_remove_large,
                                                                              args.padding_tag, args.frangi_thresholded_tag, \
@@ -1074,7 +1074,7 @@ def main():
                             layer_index = i
 
 
-                            D_array_2d, t_D_array_2d_pre, l_D_array_2d = pre_processing_single_layer_single_phase_ZhongShan(
+                            D_array_2d, t_D_array_2d_pre, l_D_array_2d = pre_processing_single_layer_single_phase(
                                 D_layers, t_D_layers, l_D_layers, layer_index, file)
                             t_array_2d_max = 1
 
@@ -1124,7 +1124,7 @@ def main():
 
 
                                         # 3. Calculate Capsule Score
-                                        capsule_score_D = Capsule_ZhongShan2(D_2d_win, D_t_label_win, D_l_array_win,
+                                        capsule_score_D = Capsule2(D_2d_win, D_t_label_win, D_l_array_win,
                                                                              liver_without_vessel_V_win, \
                                                                              liver_without_vessel_V_win_remove_large,
                                                                              args.padding_tag,

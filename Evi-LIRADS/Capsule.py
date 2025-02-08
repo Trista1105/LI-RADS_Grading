@@ -67,10 +67,10 @@ def capsule_parameters(data_site):
     parser = argparse.ArgumentParser(description='LIRADS feature Capsule recognition')
 
     parser.add_argument('--data_site', action='store_true', default=data_site,
-                        help='#ZhongShan: True')
+                        help='')
 
     parser.add_argument('--normalize_tag', action='store_true', default=True,
-                        help='#ZhongShan: True')
+                        help='')
 
     parser.add_argument('--thresholdingFirstThenRingRegion', action='store_true', default=True,
                         help='# For cases, mask is smaller, not including capsule region')
@@ -135,49 +135,38 @@ def capsule_parameters(data_site):
                         help='# used in capsule_double_confirm, also in capsule_double_confirm0, tested value: True')
 
 
-    if data_site == 'ZheYi':
-        parser.add_argument('--frangiBetaTwo', action='store_true', default=0.03,
-                    help='')
-        parser.add_argument('--upper_lower_around_size', action='store_true', default=3,
-                            help='')
+
+
+    parser.add_argument('--frangiBetaTwo', action='store_true', default=0.04,
+                        help='')
+
+    parser.add_argument('--dilate_disk', action='store_true', default=True,
+                        help='')
+    parser.add_argument('--upper_lower_around_size', action='store_true', default=1,
+                        help='default: 1')
+
+    if auto_segmentation and (not use_manual_parameters):
         parser.add_argument('--score_threshold', action='store_true', default=1.04,
-                            help='#1.08')
-
-        parser.add_argument('--small_region_k', action='store_true', default=0.1,
-                            help='# for rectangular segmentation')
-
-
-    if data_site == 'ZhongShan' or data_site == 'SuZhou' or data_site == 'PHC':
-        parser.add_argument('--frangiBetaTwo', action='store_true', default=0.04,
                             help='')
 
-        parser.add_argument('--dilate_disk', action='store_true', default=True,
+        parser.add_argument('--frangi_threshold_auto', action='store_true', default=False,
                             help='')
-        parser.add_argument('--upper_lower_around_size', action='store_true', default=1,
-                            help='default: 1')
-
-        if auto_segmentation and (not use_manual_parameters):
+    else:
+        if Capsule_Updated:
             parser.add_argument('--score_threshold', action='store_true', default=1.04,
-                                help='#ZhongShan: 1, SuZhou: 1.015, ZhongShan & SuZhou, PHC: 1.03; 20240130版本是1.03')
+                                help='')
 
-            parser.add_argument('--frangi_threshold_auto', action='store_true', default=False,
-                                help='#ZhongShan: False, SuZhou: False, ZhongShan & SuZhou, PHC: True')
+            parser.add_argument('--frangi_threshold_auto', action='store_true', default=True,
+                                help='')
         else:
-            if Capsule_Updated:
-                parser.add_argument('--score_threshold', action='store_true', default=1.04,
-                                    help='#ZhongShan: 1, SuZhou: 1.015, ZhongShan & SuZhou, PHC: 1.03')
+            parser.add_argument('--score_threshold', action='store_true', default=1.01,
+                                help='')
 
-                parser.add_argument('--frangi_threshold_auto', action='store_true', default=True,
-                                    help='#ZhongShan: False, SuZhou: False, ZhongShan & SuZhou, PHC: True')
-            else:
-                parser.add_argument('--score_threshold', action='store_true', default=1.01,
-                                    help='#ZhongShan: 1, SuZhou: 1.015, ZhongShan & SuZhou, PHC: 1.03')
+            parser.add_argument('--frangi_threshold_auto', action='store_true', default=True,
+                                help='')
 
-                parser.add_argument('--frangi_threshold_auto', action='store_true', default=True,
-                                    help='#ZhongShan: False, SuZhou: False, ZhongShan & SuZhou, PHC: True')
-
-        parser.add_argument('--small_region_k', action='store_true', default=2,
-                            help='# for rectangular segmentation, ZhongShan: 2, does not segment, SuZhou:?')
+    parser.add_argument('--small_region_k', action='store_true', default=2,
+                        help='')
 
 
     parser.add_argument('--region_number', action='store_true', default=1,
@@ -202,7 +191,7 @@ def capsule_parameters(data_site):
 
     if auto_segmentation and (not use_manual_parameters):
         parser.add_argument('--inside_around_gap', action='store_true', default=0,
-                            help='# ZhongShan:2, SuZhou:1, other tested value: 0')
+                            help='')
 
         parser.add_argument('--erosion_size', action='store_true', default=2,
                             help='# default: 3')
@@ -210,13 +199,13 @@ def capsule_parameters(data_site):
 
         if Capsule_Updated:
             parser.add_argument('--inside_around_gap', action='store_true', default=2,
-                                help='# ZhongShan:2, SuZhou:1, other tested value: 0')
+                                help='')
 
             parser.add_argument('--erosion_size', action='store_true', default=2,
                                 help='# default: 3')
         else:
             parser.add_argument('--inside_around_gap', action='store_true', default=2,
-                                help='# ZhongShan:2, SuZhou:1, other tested value: 0')
+                                help='')
 
             parser.add_argument('--erosion_size', action='store_true', default=3,
                                 help='# default: 3')
@@ -230,9 +219,7 @@ def capsule_parameters(data_site):
         # 出现在remove_capsule_region_along_liver_rim中，每段候选包膜逐一处理
 
         parser.add_argument('--liver_rim_erosion_capsule_length_threshold', action='store_true', default=0.1,
-                            help='# Erosion掉的部分占总长5%以上即将其认为是肝脏边缘而非包膜，剔除整个候选包膜区域 \
-                            # Erosion掉的部分占总长5%以上即将其认为 靠近肝脏边缘处 是肝脏边缘而非包膜，剔除候选包膜区域在肝脏边缘的部分\
-                            default: 0.95 该设置似乎有点问题，改为0.10')
+                            help='')
         parser.add_argument('--erode_candidate_capsule_totally', action='store_true', default=True,
                             help='# default: True')
 
@@ -336,17 +323,9 @@ def tumor_distance_transform(t_label_win, inside_threshold, radius, dilate_k, ou
     # y_close_dis_outside, x_close_dis_outside = np.where(dist2_inverse / 255 >= 0.2)[0], \
     #                            np.where(dist2_inverse / 255 >= 0.2)[1]
     if args.ifDilate:
-        if args.data_site == 'ZhongShan':
-            # t_label_win_dilate = array_proc.dilate(t_label_win, np.int0(dilate_k * radius))
-            # t_label_win_dilate = array_proc.dilate(t_label_win, 0.5)  # baseline
-            t_label_win_dilate = array_proc.dilate_size(t_label_win, args.Dilate_Size) # Test 1 on 20230522
-            # t_label_win_dilate = array_proc.dilate(t_label_win, min(np.int0(dilate_k * radius), 25))
-        else:
-            # t_label_win_dilate = array_proc.dilate(t_label_win, 0.5) # baseline
-            t_label_win_dilate = array_proc.dilate_size(t_label_win, args.Dilate_Size) # Test 1 on 20230522
-            # t_label_win_dilate = array_proc.dilate_size(t_label_win, 1)
-            # t_label_win_dilate = array_proc.dilate(t_label_win, np.int0(dilate_k * radius))
-            # t_label_win_dilate = array_proc.dilate(t_label_win, min(np.int0(dilate_k * radius), 10))
+
+        t_label_win_dilate = array_proc.dilate_size(t_label_win, args.Dilate_Size) # Test 1 on 20230522
+
     else:
         t_label_win_dilate = t_label_win
 
@@ -358,7 +337,7 @@ def tumor_distance_transform(t_label_win, inside_threshold, radius, dilate_k, ou
 
     return y_close_dis_inside, x_close_dis_inside, y_close_dis_outside, x_close_dis_outside
 
-def get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, radius):
+def get_lesion_around(dyn_2d_win, t_label_win, l_2d_win, radius):
     import copy
     if dilation_kernel == 'cv2':
         lesion_around = array_proc.dilate(t_label_win, np.int0(radius))
@@ -377,22 +356,6 @@ def get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, radius):
 
     return dyn_2d_win_lesion_around
 
-def get_lesion_around_ZheYi(dyn_2d_win, t_label_win, l_2d_win, padding_tag, radius):
-    import copy
-    lesion_around = array_proc.dilate(t_label_win, np.int0(radius))
-    y, x = np.where(lesion_around == 0)[0], np.where(lesion_around == 0)[1]
-    dyn_2d_win_lesion_around = copy.deepcopy(dyn_2d_win)
-    dyn_2d_win_lesion_around[y, x] = 0
-
-    if padding_tag:
-        l_2d_win_erosion = array_proc.erosion(l_2d_win, 1)
-        y, x = np.where(l_2d_win_erosion == 0)[0], np.where(l_2d_win_erosion == 0)[1]
-    else:
-        y, x = np.where(l_2d_win == 0)[0], np.where(l_2d_win == 0)[1]
-
-    dyn_2d_win_lesion_around[y, x] = 0
-
-    return dyn_2d_win_lesion_around
 
 def padding(dyn_2d_win_input):
     import copy
@@ -2669,7 +2632,7 @@ def ID_write(xlspath, ID_status):
     fout1.write("".join(ID_status) + '\n')
     fout1.close()
 
-outfile = 'SuZhou_Capsule_Intensity.xls'
+outfile = 'xx.xls'
 header = "".join(['ID\tlayer\tphase\tregion index\tcapsule region mean\taround upper mean\taround lower mean\ttumor rim middle mean\ttumor rim inside mean\ttumor rim outside mean'])
 ID_write_head(outfile, header)
 
@@ -3022,46 +2985,13 @@ def capsule_double_confirm0(capsule_region_thresholded_large, dyn_2d_win, t_labe
                                     label_upper_sum = exist.sum()  # 候选包膜一侧区域的长度（用像素点总和近似）
 
                         condition_ = label_upper_sum >= args.capsule_upper_lower_area_ratio*label_sum and label_lower_sum >= args.capsule_upper_lower_area_ratio*label_sum
-                        # condition_ = True # 用于消融实验
+                        # condition_ = True # For comparison method
                     else:
                         condition_ = True
 
                     if condition_:
                         #############################  End Seperate upper and lower part of the capsule around region ######################
                         #####################################################################################################################
-
-                        # result = display.add_contour_to_img(dyn_2d_win_copy, region_label, 1,
-                        #                                                  (0, 0, 255), 1)
-                        # result = display.add_contour_to_img(result, label_dilate_upper, 0,
-                        #                                           (255, 0, 0), 1)
-                        # result = display.add_contour_to_img(result, label_dilate_lower, 0,
-                        #                                     (0, 255, 0), 1)
-
-                        # plt.subplot(3, 6, 16)
-                        # plt.imshow(mask, cmap='gray')
-                        # plt.subplot(3, 6, 17)
-                        # plt.imshow(label_dilate_upper, cmap='gray')
-                         # plt.subplot(3, 6, 18)
-                        # plt.imshow(label_dilate_lower, cmap='gray')
-
-
-
-
-                        # separate upper and lower part of capsule around region with direction
-                        # direction = label_direction(label)
-                        # dyn_2d_win_skeleton, lesion_rim_sum = array_proc.tumor_rim_length(t_label_win)
-                        # # Compare with both sides
-                        # Upper_score, Lower_score, capsule_sum, label_dilate, Y, X_max, X_min, \
-                        # region_label_ROI, region_around_lower, region_around_upper = compare_both_sides(dyn_2d_win_copy,
-                        #                                                                                 t_label_win_,
-                        #                                                                                 labels, label,
-                        #                                                                                 region_index,
-                        #                                                                                 direction,
-                        #                                                                                 upper_lower_around_size,
-                        #                                                                                 lesion_rim_sum,
-                        #                                                                                 lesion_around_contour,
-                        #                                                                                 region_label,
-                        #                                                                                 remove_tumor_dark=False)
 
 
                         if detailplot_tag:
@@ -3217,45 +3147,6 @@ def capsule_double_confirm0(capsule_region_thresholded_large, dyn_2d_win, t_labe
                     true_capsule_region = display.add_contour_to_img(true_capsule_region, true_regions[true_capsule_region_index], 0,
                                                                     (0, 255, 0), 1)
 
-            # True_Capsule_Skeleton = get_capsule_region_skeleton(True_Capsule)
-
-
-
-
-            # if plotfigure_tag:
-            #     plt.figure()
-            #     plt.imshow(True_Capsule, cmap='gray')
-            #     plt.imshow(True_Capsule, cmap='gray')
-            #     plt.title('true capsule regions2')
-            #
-            #     plt.show()
-
-
-                # plt.figure()
-                # plt.imshow(True_Capsule_Skeleton, cmap='gray')
-                # plt.title('capsule_skeleton')
-                #
-                # plt.show()
-
-    # calculate capsule length
-    if False:
-        capsule_sum = 0
-        for cap_index in range(0, len(capsule_tag)):
-            if capsule_tag[cap_index] > 0:
-                label = copy.deepcopy(labels)
-                y, x = np.where(labels != cap_index + 1)
-                label[y, x] = 0
-                y, x = np.where(labels == cap_index + 1)
-                label[y, x] = 1
-                exist = (label != 0)
-                if weighted_capsule_length:
-                    capsule_sum = capsule_sum + exist.sum() * capsule_tag[cap_index]
-                else:
-                    capsule_sum = capsule_sum + exist.sum()
-                # capsule_sum = capsule_sum + exist.sum() * (1 + 10 * (capsule_tag[cap_index] - 1))
-    # End calculate capsule length
-
-
 
 
 
@@ -3295,539 +3186,6 @@ def capsule_double_confirm0(capsule_region_thresholded_large, dyn_2d_win, t_labe
 
 ### ------------------------- End capsule region double confirm ---------------- ############
 
-
-def Capsule_ZhongShan0(dyn_2d_win, t_label_win, l_2d_win, padding_tag, frangi_thresholded_tag, radius, inside_threshold,
-                      outside_threshold, dilate_k, frangi_threshold, plotfigure_tag, phase, args):
-    # dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, radius)
-    dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, radius)
-
-    # Calculate Gradient
-    gradient = img_gradient(dyn_2d_win, t_label_win, radius)
-
-    thresh, ret = cv2.threshold(gradient, 100, 255, cv2.THRESH_BINARY)
-
-    if padding_tag:
-        dyn_2d_win_lesion_around_padding, y_before_padding, x_before_padding = padding(dyn_2d_win_lesion_around)
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around_padding.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-    else:
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-
-    dyn_2d_win_enhanced, angles, mu1, mu2, v1x, v1y, v2x, v2y, S2 = FrangiFilter2D.FrangiFilter2D(dyn_2d_win_double, args.frangiBetaTwo)
-
-    y_close_dis_inside, x_close_dis_inside, y_close_dis_outside, x_close_dis_outside = \
-        tumor_distance_transform(t_label_win, inside_threshold, radius, dilate_k, outside_threshold, args)
-
-    if frangi_thresholded_tag:
-        frangi_thresholded, frangi_thresholded_large = frangi_thresholding(dyn_2d_win_enhanced, frangi_threshold,
-                                                                           radius)
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(frangi_thresholded_large, y_close_dis_inside,
-                                                        x_close_dis_inside, y_close_dis_outside,
-                                                        x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(frangi_thresholded_large, y_close_dis_inside,
-                                                           x_close_dis_inside, y_close_dis_outside,
-                                                           x_close_dis_outside)
-    else:
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside,
-                                                        y_close_dis_outside,
-                                                        x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside,
-                                                           y_close_dis_outside,
-                                                           x_close_dis_outside)
-
-    capsule_region_thresholded, capsule_region_thresholded_large = capsule_region_thresholding(capsule_region, radius)
-
-    # calculate capsule score based on skeleton
-    if padding_tag:
-        dyn_2d_win_skeleton = lesion_ring_skeleton(dyn_2d_win_lesion_around_padding, t_label_win)
-    else:
-        dyn_2d_win_skeleton = lesion_ring_skeleton(dyn_2d_win_lesion_around, t_label_win)
-
-    capsule_region_skeleton = get_capsule_region_skeleton(capsule_region_thresholded_large)
-
-    # y_close_liver, x_close_liver = tumor_around_liver(l_2d_win, l_dis_2d_win, dis_threshold)
-    # dyn_2d_win_skeleton[y_close_liver, x_close_liver] = 0
-    # capsule_region_skeleton[y_close_liver, x_close_liver] = 0
-
-    ret_dilated = array_proc.dilate(ret, 1)
-    # ret_dilated = copy.deepcopy(ret)
-    y, x = np.where(ret_dilated == 0)[0], np.where(ret_dilated == 0)[1]
-    capsule_region_skeleton_gradient = copy.deepcopy(capsule_region_skeleton)
-    capsule_region_skeleton_gradient[y, x] = 0
-
-    # capsule_score = np.sum(capsule_region_skeleton_gradient.astype(np.int)) / np.sum(dyn_2d_win_skeleton)
-
-    # y, x = np.where(ret == 255)[0], np.where(ret == 255)[1]
-    # ret[y, x] = 1
-    # ret = get_capsule_region_skeleton(ret)
-    # capsule_score = np.sum(ret.astype(np.int)) / np.sum(dyn_2d_win_skeleton)
-
-    if plotfigure_tag:
-        plt.figure()
-        plt.suptitle(phase)
-
-        plt.subplot(3, 6, 1)
-        plt.imshow(dyn_2d_win, cmap='gray')
-        plt.title('ROI')
-
-        plt.subplot(3, 6, 2)
-        plt.imshow(dyn_2d_win_lesion_around, cmap='gray')
-        plt.title('lesion_around')
-
-        plt.subplot(3, 6, 3)
-        plt.imshow(gradient, cmap='gray')
-        plt.title('lesion_around_gradient')
-
-        lesion_around_gradient_contour = display.add_contour_to_img(gradient, t_label_win, 1,
-                                                                    (0, 0, 255),
-                                                                    1)
-
-        plt.subplot(3, 6, 4)
-        plt.imshow(lesion_around_gradient_contour, cmap='gray')
-        plt.title('lesion_around_gradient_contour')
-
-        if padding_tag:
-            plt.subplot(3, 6, 5)
-            plt.imshow(dyn_2d_win_lesion_around_padding, cmap='gray')
-            plt.title('lesion_around_padding')
-
-            lesion_around_contour = display.add_contour_to_img(dyn_2d_win_lesion_around_padding, t_label_win, 1,
-                                                               (0, 0, 255),
-                                                               1)
-        else:
-            lesion_around_contour = display.add_contour_to_img(dyn_2d_win_lesion_around_padding, t_label_win, 1,
-                                                               (0, 0, 255),
-                                                               1)
-        plt.subplot(3, 6, 6)
-        plt.imshow(lesion_around_contour, cmap='gray')
-        plt.title('lesion_around_contour')
-
-        plt.subplot(3, 6, 7)
-        plt.imshow(dyn_2d_win_enhanced, cmap='gray')
-        plt.title('frangi_enhanced')
-
-        dyn_2d_win_enhanced_tmp = display.add_contour_to_img(dyn_2d_win_enhanced, t_label_win, 1,
-                                                             (0, 255, 0), 1)
-        plt.subplot(3, 6, 8)
-        plt.imshow(dyn_2d_win_enhanced_tmp, cmap='gray')
-        plt.title('frangi_enhanced_with_contour')
-
-        plt.subplot(3, 6, 9)
-        plt.imshow(frangi_thresholded, cmap='gray')
-
-        plt.title('frangi_enhanced_thresholded')
-
-        frangi_thresholded_large = array_proc.remove_small_t(frangi_thresholded, np.int0(0.1 * radius))  # 15
-
-        plt.subplot(3, 6, 10)
-        plt.imshow(frangi_thresholded_large, cmap='gray')
-        plt.title('frangi_enhanced_thresholded_large')
-
-        plt.subplot(3, 6, 11)
-        plt.imshow(capsule_region, cmap='gray')
-        plt.title('frangi_enhanced_thresholded_capsule')
-
-        capsule_region_contour = display.add_contour_to_img(capsule_region, t_label_win, 1, (0, 255, 0), 1)
-
-        plt.subplot(3, 6, 12)
-        plt.imshow(capsule_region_contour, cmap='gray')
-        plt.title('frangi_enhanced_thresholded_capsule_contour')
-
-        plt.subplot(3, 6, 13)
-        plt.imshow(capsule_region_thresholded, cmap='gray')
-        plt.title('fra_enhan_threded_capsule_threded')
-
-        plt.subplot(3, 6, 14)
-        plt.imshow(capsule_region_thresholded_large, cmap='gray')
-
-        plt.title('fra_enhan_threded_capsule_threded_large')
-
-        plt.subplot(3, 6, 15)
-        plt.imshow(dyn_2d_win_skeleton, cmap='gray')
-        plt.title('lesion_ring_skeleton')
-
-        plt.subplot(3, 6, 16)
-        plt.imshow(capsule_region_skeleton, cmap='gray')
-        plt.title('capsule_region_skeleton')
-
-        lesion_gradient_skeleton = display.add_contour_to_img(gradient, capsule_region_skeleton, 1,
-                                                              (255, 0, 0),
-                                                              1)
-
-        # plt.subplot(3, 6, 17)
-        # plt.imshow(lesion_gradient_skeleton, cmap='gray')
-        # plt.title('lesion_gradient_skeleton')
-
-        plt.subplot(3, 6, 18)
-        plt.imshow(ret, cmap='gray')
-        plt.title('lesion_gradient_binary')
-
-        plt.subplot(3, 6, 17)
-        plt.imshow(capsule_region_skeleton_gradient, cmap='gray')
-        plt.title('capsule_region_skeleton_gradient')
-
-        plt.show()
-
-    capsule_score = capsule_double_confirm0(capsule_region_thresholded_large, dyn_2d_win, t_label_win, False,plotfigure_tag,args)
-
-    return capsule_score
-
-# Capsule_ZhongShan: Latest version for ZhongShan
-def Capsule_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, liver_without_vessel_win, liver_without_vessel_win_remove_large, \
-                      padding_tag, frangi_thresholded_tag, radius, inside_threshold, outside_threshold, dilate_k, \
-                      frangi_threshold, plotfigure_tag, phase, vessel_removal, remove_tumor_dark, liver_rim_erosion,args):
-    adaptive_threshold_mask_tumor = 15 #35
-    # segment tumor to remove very dark region
-    # Get liver region
-    tumor_region = copy.deepcopy(dyn_2d_win)
-    y, x = np.where(t_label_win == 0)[0], np.where(t_label_win == 0)[1]
-    tumor_region[y, x] = 0
-
-    dyn_2d_normalized = copy.deepcopy(tumor_region)
-    cv2.normalize(tumor_region, dyn_2d_normalized, 0, 255, cv2.NORM_MINMAX)
-
-    # threshTwoPeaks(dyn_2d_normalized.astype(np.uint8))
-    kernel_size = min(adaptive_threshold_mask_tumor, 2 * np.int0(0.5 * radius) + 1)
-    if kernel_size == 1:
-        kernel_size = 3
-
-    result = cv2.adaptiveThreshold(dyn_2d_normalized.astype(np.uint8), 255,
-                                          cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,
-                                          kernel_size,
-                                          0)
-
-    # ret, result = cv2.threshold(dyn_2d_normalized.astype(np.uint8), 160, 255, cv2.THRESH_BINARY)  # 160
-    # ret, result = cv2.threshold(dyn_2d_normalized.astype(np.uint8), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    # ret, result = cv2.threshold(dyn_2d_normalized.astype(np.uint8), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_TRIANGLE)
-
-    result_large = copy.deepcopy(result)
-
-    result_large = array_proc.dilate_size(result_large, 1)
-    result_large = array_proc.erosion(result_large, 1)
-
-    # result_large = array_proc.remove_small_t(result_large, 20)
-    #
-    # exist = (result_large != 0)
-    # large_sum = exist.sum()
-
-    # result = array_proc.hole_fill(result)
-
-    # dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, radius)
-    dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, radius)
-
-
-    # Calculate Gradient
-    # gradient = img_gradient(dyn_2d_win, t_label_win, radius)
-    #
-    # thresh, ret = cv2.threshold(gradient, 100, 255, cv2.THRESH_BINARY)
-
-    if padding_tag:
-        dyn_2d_win_lesion_around_padding, y_before_padding, x_before_padding = padding(dyn_2d_win_lesion_around)
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around_padding.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-    else:
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-
-    dyn_2d_win_enhanced, angles, mu1, mu2, v1x, v1y, v2x, v2y, S2 = FrangiFilter2D.FrangiFilter2D(dyn_2d_win_double, args.frangiBetaTwo)
-
-    y_close_dis_inside, x_close_dis_inside, y_close_dis_outside, x_close_dis_outside = \
-        tumor_distance_transform(t_label_win, inside_threshold, radius, dilate_k, outside_threshold,args)
-
-    if frangi_thresholded_tag:
-        frangi_thresholded, frangi_thresholded_large = frangi_thresholding(dyn_2d_win_enhanced, frangi_threshold, radius)
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(frangi_thresholded_large, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                       x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(frangi_thresholded_large, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                          x_close_dis_outside)
-    else:
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                       x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                          x_close_dis_outside)
-
-    capsule_region_thresholded, capsule_region_thresholded_large = capsule_region_thresholding(capsule_region, radius)
-
-    # # calculate capsule score based on skeleton
-    # if padding_tag:
-    #     dyn_2d_win_skeleton = lesion_ring_skeleton(dyn_2d_win_lesion_around_padding, t_label_win)
-    # else:
-    #     dyn_2d_win_skeleton = lesion_ring_skeleton(dyn_2d_win_lesion_around, t_label_win)
-    #
-    # capsule_region_skeleton = get_capsule_region_skeleton(capsule_region_thresholded_large)
-
-    # y_close_liver, x_close_liver = tumor_around_liver(l_2d_win, l_dis_2d_win, dis_threshold)
-    # dyn_2d_win_skeleton[y_close_liver, x_close_liver] = 0
-    # capsule_region_skeleton[y_close_liver, x_close_liver] = 0
-
-    # ret_dilated = array_proc.dilate(ret, 1)
-    # # ret_dilated = copy.deepcopy(ret)
-    # y, x = np.where(ret_dilated == 0)[0], np.where(ret_dilated == 0)[1]
-    # capsule_region_skeleton_gradient = copy.deepcopy(capsule_region_skeleton)
-    # capsule_region_skeleton_gradient[y, x] = 0
-
-
-    # capsule_score = np.sum(capsule_region_skeleton_gradient.astype(np.int)) / np.sum(dyn_2d_win_skeleton)
-
-    # y, x = np.where(ret == 255)[0], np.where(ret == 255)[1]
-    # ret[y, x] = 1
-    # ret = get_capsule_region_skeleton(ret)
-    # capsule_score = np.sum(ret.astype(np.int)) / np.sum(dyn_2d_win_skeleton)
-
-    capsule_region_thresholded_large_erosion = copy.deepcopy(capsule_region_thresholded_large)
-    if liver_rim_erosion:
-        l_2d_win_erosion = array_proc.erosion(l_2d_win, 4)
-        y,x = np.where(l_2d_win_erosion == False)[0], np.where(l_2d_win_erosion == False)[1]
-
-        capsule_region_thresholded_large_erosion[y,x] = 0
-
-        capsule_region_thresholded_large_erosion_contour = display.add_contour_to_img(capsule_region_thresholded_large, l_2d_win_erosion, 1,
-                                                           (0, 0, 255), 1)
-
-
-    if plotfigure_tag:
-        plt.figure()
-        plt.suptitle(phase)
-
-        plt.subplot(3, 6, 1)
-        plt.imshow(dyn_2d_win, cmap='gray')
-        plt.title('ROI')
-
-        plt.subplot(3, 6, 2)
-        plt.imshow(dyn_2d_win_lesion_around, cmap='gray')
-        plt.title('lesion_around')
-
-        plt.subplot(3, 6, 3)
-        plt.imshow(result, cmap='gray')
-        plt.title('lesion_segment')
-
-
-        dyn_2d_win_lesion_around_copy = copy.deepcopy(dyn_2d_win_lesion_around)
-        # y, x = np.where(result == 0)[0], np.where(result == 0)[1]
-        # dyn_2d_win_lesion_around_copy[y,x] = 0
-
-        dyn_2d_win_lesion_around_copy = display.add_contour_to_img(dyn_2d_win_lesion_around_copy, result_large, 1,
-                                                                                      (0, 0, 255), 1)
-
-        plt.subplot(3, 6, 4)
-        plt.imshow(dyn_2d_win_lesion_around_copy, cmap='gray')
-        plt.title('lesion_segment_contour')
-
-        # plt.subplot(3, 6, 3)
-        # plt.imshow(gradient, cmap='gray')
-        # plt.title('lesion_around_gradient')
-        #
-        # lesion_around_gradient_contour = display.add_contour_to_img(gradient, t_label_win, 1,
-        #                                                    (0, 0, 255),
-        #                                                    1)
-        #
-        # plt.subplot(3, 6, 4)
-        # plt.imshow(lesion_around_gradient_contour, cmap='gray')
-        # plt.title('lesion_around_gradient_contour')
-
-
-        if padding_tag:
-            plt.subplot(3, 6, 5)
-            plt.imshow(dyn_2d_win_lesion_around_padding, cmap='gray')
-            plt.title('lesion_around_padding')
-
-            lesion_around_contour = display.add_contour_to_img(dyn_2d_win_lesion_around_padding, t_label_win, 1, (0, 0, 255),
-                                                           1)
-        else:
-            lesion_around_contour = display.add_contour_to_img(dyn_2d_win_lesion_around_padding, t_label_win, 1,
-                                                               (0, 0, 255),
-                                                               1)
-        plt.subplot(3, 6, 6)
-        plt.imshow(lesion_around_contour, cmap='gray')
-        plt.title('lesion_around_contour')
-
-        plt.subplot(3, 6, 7)
-        plt.imshow(dyn_2d_win_enhanced, cmap='gray')
-        plt.title('frangi_enhanced')
-
-        dyn_2d_win_enhanced_tmp = display.add_contour_to_img(dyn_2d_win_enhanced, t_label_win, 1,
-                                                             (0, 255, 0), 1)
-        plt.subplot(3, 6, 8)
-        plt.imshow(dyn_2d_win_enhanced_tmp, cmap='gray')
-        plt.title('frangi_enhanced_with_contour')
-
-        if frangi_thresholded_tag:
-            plt.subplot(3, 6, 9)
-            plt.imshow(frangi_thresholded, cmap='gray')
-
-            plt.title('frangi_enhanced_thresholded')
-
-            # frangi_thresholded_remove_small = array_proc.remove_small_t(frangi_thresholded, np.int0(0.1 * radius))  # 15
-
-
-            plt.subplot(3, 6, 10)
-            plt.imshow(frangi_thresholded_large, cmap='gray')
-            plt.title('frangi_enhanced_thresholded_large')
-
-        plt.subplot(3, 6, 11)
-        plt.imshow(capsule_region, cmap='gray')
-        plt.title('frangi_enhanced_capsule')
-
-        capsule_region_contour = display.add_contour_to_img(capsule_region, t_label_win, 1, (0, 255, 0), 1)
-
-        plt.subplot(3, 6, 12)
-        plt.imshow(capsule_region_contour, cmap='gray')
-        plt.title('frangi_enhanced_capsule_contour')
-
-        plt.subplot(3, 6, 13)
-        plt.imshow(capsule_region_thresholded_large, cmap='gray')
-        plt.title('fra_enhan_threded_capsule_threded_large')
-
-        if liver_rim_erosion:
-            plt.subplot(3, 6, 14)
-            plt.imshow(capsule_region_thresholded_large_erosion_contour, cmap='gray')
-
-            plt.title('fra_enhan_threded_capsule_threded_large_erosion_contour')
-
-        plt.subplot(3, 6, 15)
-        plt.imshow(capsule_region_thresholded_large_erosion, cmap='gray')
-
-        plt.title('fra_enhan_threded_capsule_threded_large_erosion')
-
-        # plt.subplot(3, 6, 16)
-        # plt.imshow(liver_without_vessel_win, cmap='gray')
-        # plt.title('liver_without_vessel_win')
-
-        if vessel_removal:
-            # remove large region on liver background to get vessel region
-            liver_without_vessel_win_erosion_dilation = array_proc.erosion(liver_without_vessel_win, 3)
-            liver_without_vessel_win_erosion_dilation = array_proc.dilate_size(liver_without_vessel_win_erosion_dilation, 3)
-
-            labels, sort_list, stats, centroids, contours = array_proc.region_selection(liver_without_vessel_win_erosion_dilation)
-
-            max_region = copy.deepcopy(liver_without_vessel_win_erosion_dilation)
-            y, x = np.where(labels != 1)
-            max_region[y, x] = 0
-            y, x = np.where(labels == 1)
-            max_region[y, x] = 1
-
-            exist = (max_region != 0)
-            max_sum = exist.sum()
-
-            for region_index in range(2, labels.max() + 1):
-
-                label = copy.deepcopy(labels)
-                y, x = np.where(labels != region_index)
-                label[y, x] = 0
-                y, x = np.where(labels == region_index)
-                label[y, x] = 1
-
-                exist = (label != 0)
-                label_sum = exist.sum()
-
-                if label_sum > max_sum:
-                    max_region = label
-
-            y, x = np.where(max_region != 0)[0], np.where(max_region != 0)[1]
-            liver_without_vessel_win[y, x] = 0
-            # end
-
-            plt.subplot(3, 6, 16)
-            plt.imshow(liver_without_vessel_win, cmap='gray')
-            plt.title('liver_without_vessel_win_remove_large')
-
-
-            capsule_region_vessel_mask = display.add_contour_to_img(dyn_2d_win, capsule_region_thresholded_large_erosion, 1, (0, 255, 0), 1)
-            capsule_region_vessel_mask = display.add_contour_to_img(capsule_region_vessel_mask, liver_without_vessel_win, 0, (255, 0, 0), 1)
-
-
-            plt.subplot(3, 6, 17)
-            plt.imshow(capsule_region_vessel_mask, cmap='gray')
-            plt.title('capsule_region_vessel_mask')
-
-
-        # plt.subplot(3, 6, 16)
-        # plt.imshow(dyn_2d_win_skeleton, cmap='gray')
-        # plt.title('lesion_ring_skeleton')
-        #
-        # plt.subplot(3, 6, 17)
-        # plt.imshow(capsule_region_skeleton, cmap='gray')
-        # plt.title('capsule_region_skeleton')
-        #
-        # lesion_gradient_skeleton = display.add_contour_to_img(gradient, capsule_region_skeleton, 1,
-        #                                                    (255, 0, 0),
-        #                                                    1)
-
-        # plt.subplot(3, 6, 18)
-        # plt.imshow(ret, cmap='gray')
-        # plt.title('lesion_gradient_binary')
-        #
-        # plt.subplot(3, 6, 17)
-        # plt.imshow(capsule_region_skeleton_gradient, cmap='gray')
-        # plt.title('capsule_region_skeleton_gradient')
-
-        plt.show()
-
-    # calculate lesion rim length
-    dyn_2d_win_skeleton = copy.deepcopy(dyn_2d_win)
-
-    y, x = np.where(t_label_win == 0)[0], np.where(t_label_win == 0)[1]
-    dyn_2d_win_skeleton[y, x] = 0
-
-    t_label_win_erosion_1 = array_proc.erosion(t_label_win, 1)
-    y, x = np.where(t_label_win_erosion_1 == 1)[0], np.where(t_label_win_erosion_1 == 1)[1]
-
-    dyn_2d_win_skeleton[y, x] = 0
-
-    y, x = np.where(dyn_2d_win_skeleton > 0)[0], np.where(dyn_2d_win_skeleton > 0)[1]
-
-    dyn_2d_win_skeleton[y, x] = 1
-
-    exist = (dyn_2d_win_skeleton != 0)
-    lesion_rim_sum = exist.sum()
-    # End calculate lesion rim length
-
-
-
-    if vessel_removal:
-        y, x = np.where(liver_without_vessel_win == 1)[0], np.where(liver_without_vessel_win == 1)[1]
-        capsule_region_thresholded_large_erosion[y,x] = 0
-        capsule_region_thresholded_large[y,x] = 0
-
-        capsule_region_vessel_mask = display.add_contour_to_img(dyn_2d_win, capsule_region_thresholded_large_erosion, 1,
-                                                                (0, 255, 0), 1)
-        capsule_region_vessel_mask = display.add_contour_to_img(capsule_region_vessel_mask, liver_without_vessel_win, 0,
-                                                                (255, 0, 0), 1)
-        if plotfigure_tag:
-            plt.subplot(3, 6, 18)
-            plt.imshow(capsule_region_vessel_mask, cmap='gray')
-            plt.title('capsule_region_vessel_mask')
-            plt.show()
-
-    if remove_tumor_dark:
-        t_label_win_ = result_large
-    else:
-        t_label_win_ = t_label_win
-
-    capsule_region_thresholded_large_erosion_skeleton = get_capsule_region_skeleton(capsule_region_thresholded_large_erosion)
-    exist = capsule_region_thresholded_large_erosion_skeleton != 0
-    if args.data_site == 'ZheYi':
-        if exist.sum() < 0.05*lesion_rim_sum:
-
-            capsule_score = capsule_double_confirm(capsule_region_thresholded_large_erosion, dyn_2d_win, t_label_win, \
-                                                   t_label_win_, logging_tag, plotfigure_tag, remove_tumor_dark,args)
-        else:
-            capsule_score = capsule_double_confirm(capsule_region_thresholded_large, dyn_2d_win, t_label_win, t_label_win_, \
-                                                   logging_tag, plotfigure_tag, remove_tumor_dark,args)
-    if args.data_site == 'ZhongShan' or args.data_site == 'SuZhou' or args.data_site == 'PHC':
-        capsule_score = capsule_double_confirm0(capsule_region_thresholded_large, dyn_2d_win, t_label_win, logging_tag, plotfigure_tag,args)
-
-
-    return capsule_score
 
 
 def find_min_cv_roi0(arr, roi_size=(20, 20)):
@@ -4102,11 +3460,7 @@ def compare_candidate_capsule_with_best_roi(dyn_2d_win_l_t, capsule_region_thres
 
 
 
-
-
-
-# Capsule_ZhongShan2: Latest version for ZhongShan, SuZhou and PHC, ZheYi
-def Capsule_ZhongShan2(dyn_2d_win, t_label_win, l_2d_win, liver_without_vessel_win, liver_without_vessel_win_remove_large,
+def Capsule2(dyn_2d_win, t_label_win, l_2d_win, liver_without_vessel_win, liver_without_vessel_win_remove_large,
                        padding_tag, frangi_thresholded_tag, radius, inside_threshold, outside_threshold,
                        dilate_k, frangi_threshold, plotfigure_tag, phase, vessel_removal, remove_tumor_dark, liver_rim_erosion, id, layer, args):
 
@@ -4152,8 +3506,8 @@ def Capsule_ZhongShan2(dyn_2d_win, t_label_win, l_2d_win, liver_without_vessel_w
 
 
 
-    # dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, radius)
-    dyn_2d_win_lesion_around = get_lesion_around_ZhongShan(dyn_2d_win, t_label_win, l_2d_win, radius)
+
+    dyn_2d_win_lesion_around = get_lesion_around(dyn_2d_win, t_label_win, l_2d_win, radius)
 
 
     # Calculate Gradient
@@ -4818,41 +4172,6 @@ def Capsule_ZhongShan2(dyn_2d_win, t_label_win, l_2d_win, liver_without_vessel_w
     return capsule_score
 
 
-# Capsule_ZheYi: no capsule double confirm
-def Capsule_ZheYi(dyn_2d_win, t_label_win, l_2d_win, padding_tag,frangi_thresholded_tag, radius, inside_threshold, outside_threshold, dilate_k,args):
-    dyn_2d_win_lesion_around = get_lesion_around_ZheYi(dyn_2d_win, t_label_win, l_2d_win, padding_tag, radius)
-
-    if padding_tag:
-        dyn_2d_win_lesion_around_padding, y_before_padding, x_before_padding = padding(dyn_2d_win_lesion_around)
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around_padding.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-    else:
-        dyn_2d_win_double = cv2.normalize(dyn_2d_win_lesion_around.astype('double'), None, 0.0, 1.0,
-                                          cv2.NORM_MINMAX)  # Convert to normalized floating point
-
-    dyn_2d_win_enhanced, angles, mu1, mu2, v1x, v1y, v2x, v2y, S2 = FrangiFilter2D.FrangiFilter2D(dyn_2d_win_double, args.frangiBetaTwo)
-
-
-    y_close_dis_inside, x_close_dis_inside, y_close_dis_outside, x_close_dis_outside = \
-        tumor_distance_transform(t_label_win, inside_threshold, radius, dilate_k, outside_threshold,args)
-
-    if frangi_thresholded_tag:
-        frangi_thresholded, frangi_thresholded_large = frangi_thresholding(dyn_2d_win_enhanced, radius)
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(frangi_thresholded_large, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                       x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(frangi_thresholded_large, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                          x_close_dis_outside)
-    else:
-        if padding_tag:
-            capsule_region = get_capsule_region_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                       x_close_dis_outside, y_before_padding, x_before_padding)
-        else:
-            capsule_region = get_capsule_region_no_padding(dyn_2d_win_enhanced, y_close_dis_inside, x_close_dis_inside, y_close_dis_outside,
-                                          x_close_dis_outside)
-
-    capsule_region_thresholded, capsule_region_thresholded_large = capsule_region_thresholding(capsule_region, radius)
 
 
 def mean_intensity(img):
